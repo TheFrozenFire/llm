@@ -263,6 +263,12 @@ impl LLMBuilder {
         self
     }
 
+    /// Sets the client.
+    pub fn client(mut self, client: Client) -> Self {
+        self.client = Some(client);
+        self
+    }
+
     /// Sets the reasoning budget tokens.
     pub fn reasoning_budget_tokens(mut self, reasoning_budget_tokens: u32) -> Self {
         self.reasoning_budget_tokens = Some(reasoning_budget_tokens);
