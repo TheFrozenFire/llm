@@ -15,6 +15,7 @@ use crate::{
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
+use reqwest::Client;
 
 /// A function type for validating LLM provider outputs.
 /// Takes a response string and returns Ok(()) if valid, or Err with an error message if invalid.
@@ -125,6 +126,8 @@ pub struct LLMBuilder {
     temperature: Option<f32>,
     /// System prompt/context to guide model behavior
     system: Option<String>,
+    /// Client for HTTP requests
+    client: Option<Client>,
     /// Request timeout duration in seconds
     timeout_seconds: Option<u64>,
     /// Top-p (nucleus) sampling parameter
@@ -655,6 +658,7 @@ impl LLMBuilder {
                         self.model,
                         self.max_tokens,
                         self.temperature,
+                        self.client,
                         self.timeout_seconds,
                         self.system,
                         self.top_p,
@@ -690,6 +694,7 @@ impl LLMBuilder {
                         api_key,
                         self.model.unwrap_or("eleven_multilingual_v2".to_string()),
                         "https://api.elevenlabs.io/v1".to_string(),
+                        self.client,
                         self.timeout_seconds,
                         self.voice,
                     );
@@ -711,6 +716,7 @@ impl LLMBuilder {
                         self.model,
                         self.max_tokens,
                         self.temperature,
+                        self.client,
                         self.timeout_seconds,
                         self.system,
                         self.top_p,
@@ -739,6 +745,7 @@ impl LLMBuilder {
                         self.model,
                         self.max_tokens,
                         self.temperature,
+                        self.client,
                         self.timeout_seconds,
                         self.system,
                         self.top_p,
@@ -765,6 +772,7 @@ impl LLMBuilder {
                         self.model,
                         self.max_tokens,
                         self.temperature,
+                        self.client,
                         self.timeout_seconds,
                         self.system,
                     );
@@ -788,6 +796,7 @@ impl LLMBuilder {
                         self.model,
                         self.max_tokens,
                         self.temperature,
+                        self.client,
                         self.timeout_seconds,
                         self.system,
                         self.top_p,
@@ -817,6 +826,7 @@ impl LLMBuilder {
                         self.model,
                         self.max_tokens,
                         self.temperature,
+                        self.client,
                         self.timeout_seconds,
                         self.system,
                         self.top_p,
@@ -842,6 +852,7 @@ impl LLMBuilder {
                         self.model,
                         self.max_tokens,
                         self.temperature,
+                        self.client,
                         self.timeout_seconds,
                         self.system,
                         self.top_p,
@@ -870,6 +881,7 @@ impl LLMBuilder {
                         self.model,
                         self.max_tokens,
                         self.temperature,
+                        self.client,
                         self.timeout_seconds,
                         self.system,
                         self.top_p,
@@ -904,6 +916,7 @@ impl LLMBuilder {
                         self.model,
                         self.max_tokens,
                         self.temperature,
+                        self.client,
                         self.timeout_seconds,
                         self.system,
                         self.top_p,
@@ -937,6 +950,7 @@ impl LLMBuilder {
                         self.model,
                         self.max_tokens,
                         self.temperature,
+                        None, // client
                         self.timeout_seconds,
                         self.system,
                         self.top_p,
@@ -974,6 +988,7 @@ impl LLMBuilder {
                         self.model,
                         self.max_tokens,
                         self.temperature,
+                        self.client,
                         self.timeout_seconds,
                         self.system,
                         self.top_p,
@@ -1006,6 +1021,7 @@ impl LLMBuilder {
                         self.model,
                         self.max_tokens,
                         self.temperature,
+                        self.client,
                         self.timeout_seconds,
                         self.system,
                         self.top_p,
@@ -1053,6 +1069,7 @@ impl LLMBuilder {
                         self.model,
                         self.max_tokens,
                         self.temperature,
+                        self.client,
                         self.timeout_seconds,
                         self.system,
                         self.top_p,

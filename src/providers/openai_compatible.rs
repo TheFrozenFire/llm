@@ -297,6 +297,7 @@ impl<T: OpenAIProviderConfig> OpenAICompatibleProvider<T> {
         model: Option<String>,
         max_tokens: Option<u32>,
         temperature: Option<f32>,
+        client: Option<Client>,
         timeout_seconds: Option<u64>,
         system: Option<String>,
         top_p: Option<f32>,
@@ -311,10 +312,16 @@ impl<T: OpenAIProviderConfig> OpenAICompatibleProvider<T> {
         embedding_encoding_format: Option<String>,
         embedding_dimensions: Option<u32>,
     ) -> Self {
-        let mut builder = Client::builder();
-        if let Some(sec) = timeout_seconds {
-            builder = builder.timeout(std::time::Duration::from_secs(sec));
-        }
+        let client = match client {
+            Some(client) => client,
+            None => {
+                let mut builder = Client::builder();
+                if let Some(sec) = timeout_seconds {
+                    builder = builder.timeout(std::time::Duration::from_secs(sec));
+                }
+                builder.build().expect("Failed to build reqwest Client")
+            }
+        };
         Self {
             api_key: api_key.into(),
             base_url: Url::parse(&base_url.unwrap_or_else(|| T::DEFAULT_BASE_URL.to_owned()))
@@ -335,7 +342,7 @@ impl<T: OpenAIProviderConfig> OpenAICompatibleProvider<T> {
             normalize_response: normalize_response.unwrap_or(true),
             embedding_encoding_format,
             embedding_dimensions,
-            client: builder.build().expect("Failed to build reqwest Client"),
+            client,
             _phantom: PhantomData,
         }
     }

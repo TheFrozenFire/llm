@@ -27,8 +27,8 @@ pub struct DeepSeek {
     pub max_tokens: Option<u32>,
     pub temperature: Option<f32>,
     pub system: Option<String>,
+    pub client: Client,
     pub timeout_seconds: Option<u64>,
-    client: Client,
 }
 
 #[derive(Serialize)]
@@ -88,21 +88,24 @@ impl DeepSeek {
         model: Option<String>,
         max_tokens: Option<u32>,
         temperature: Option<f32>,
+        client: Option<Client>,
         timeout_seconds: Option<u64>,
         system: Option<String>,
     ) -> Self {
-        let mut builder = Client::builder();
-        if let Some(sec) = timeout_seconds {
-            builder = builder.timeout(std::time::Duration::from_secs(sec));
-        }
         Self {
             api_key: api_key.into(),
             model: model.unwrap_or("deepseek-chat".to_string()),
             max_tokens,
             temperature,
             system,
+            client: client.unwrap_or_else(|| {
+                let mut builder = Client::builder();
+                if let Some(sec) = timeout_seconds {
+                    builder = builder.timeout(std::time::Duration::from_secs(sec));
+                }
+                builder.build().expect("Failed to build reqwest Client")
+            }),
             timeout_seconds,
-            client: builder.build().expect("Failed to build reqwest Client"),
         }
     }
 }

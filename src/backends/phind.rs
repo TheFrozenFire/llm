@@ -31,6 +31,8 @@ pub struct Phind {
     pub temperature: Option<f32>,
     /// System prompt to prepend to conversations
     pub system: Option<String>,
+    /// HTTP client for making requests
+    pub client: Client,
     /// Request timeout in seconds
     pub timeout_seconds: Option<u64>,
     /// Top-p sampling parameter
@@ -39,8 +41,6 @@ pub struct Phind {
     pub top_k: Option<u32>,
     /// Base URL for the Phind API
     pub api_base_url: String,
-    /// HTTP client for making requests
-    client: Client,
 }
 
 #[derive(Debug)]
@@ -71,25 +71,28 @@ impl Phind {
         model: Option<String>,
         max_tokens: Option<u32>,
         temperature: Option<f32>,
+        client: Option<Client>,
         timeout_seconds: Option<u64>,
         system: Option<String>,
         top_p: Option<f32>,
         top_k: Option<u32>,
     ) -> Self {
-        let mut builder = Client::builder();
-        if let Some(sec) = timeout_seconds {
-            builder = builder.timeout(std::time::Duration::from_secs(sec));
-        }
         Self {
             model: model.unwrap_or_else(|| "Phind-70B".to_string()),
             max_tokens,
             temperature,
             system,
+            client: client.unwrap_or_else(|| {
+                let mut builder = Client::builder();
+                if let Some(sec) = timeout_seconds {
+                    builder = builder.timeout(std::time::Duration::from_secs(sec));
+                }
+                builder.build().expect("Failed to build reqwest Client")
+            }),
             timeout_seconds,
             top_p,
             top_k,
             api_base_url: "https://https.extension.phind.com/agent/".to_string(),
-            client: builder.build().expect("Failed to build reqwest Client"),
         }
     }
 

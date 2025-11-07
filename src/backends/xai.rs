@@ -38,6 +38,8 @@ pub struct XAI {
     pub temperature: Option<f32>,
     /// Optional system prompt to provide context
     pub system: Option<String>,
+    /// HTTP client for making API requests
+    pub client: Client,
     /// Request timeout duration in seconds
     pub timeout_seconds: Option<u64>,
     /// Top-p sampling parameter for controlling response diversity
@@ -62,8 +64,6 @@ pub struct XAI {
     pub xai_search_from_date: Option<String>,
     /// XAI search to date
     pub xai_search_to_date: Option<String>,
-    /// HTTP client for making API requests
-    client: Client,
 }
 
 /// Search source configuration for search parameters
@@ -260,6 +260,7 @@ impl XAI {
         model: Option<String>,
         max_tokens: Option<u32>,
         temperature: Option<f32>,
+        client: Option<Client>,
         timeout_seconds: Option<u64>,
         system: Option<String>,
         top_p: Option<f32>,
@@ -274,16 +275,19 @@ impl XAI {
         xai_search_from_date: Option<String>,
         xai_search_to_date: Option<String>,
     ) -> Self {
-        let mut builder = Client::builder();
-        if let Some(sec) = timeout_seconds {
-            builder = builder.timeout(std::time::Duration::from_secs(sec));
-        }
         Self {
             api_key: api_key.into(),
             model: model.unwrap_or("grok-2-latest".to_string()),
             max_tokens,
             temperature,
             system,
+            client: client.unwrap_or_else(|| {
+                let mut builder = Client::builder();
+                if let Some(sec) = timeout_seconds {
+                    builder = builder.timeout(std::time::Duration::from_secs(sec));
+                }
+                builder.build().expect("Failed to build reqwest Client")
+            }),
             timeout_seconds,
             top_p,
             top_k,
@@ -296,7 +300,6 @@ impl XAI {
             xai_search_max_results,
             xai_search_from_date,
             xai_search_to_date,
-            client: builder.build().expect("Failed to build reqwest Client"),
         }
     }
 }

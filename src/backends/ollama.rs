@@ -36,6 +36,7 @@ pub struct Ollama {
     pub max_tokens: Option<u32>,
     pub temperature: Option<f32>,
     pub system: Option<String>,
+    pub client: Client,
     pub timeout_seconds: Option<u64>,
     pub top_p: Option<f32>,
     pub top_k: Option<u32>,
@@ -43,7 +44,6 @@ pub struct Ollama {
     pub json_schema: Option<StructuredOutputFormat>,
     /// Available tools for function calling
     pub tools: Option<Vec<Tool>>,
-    client: Client,
 }
 
 /// Request payload for Ollama's chat API endpoint.
@@ -310,6 +310,7 @@ impl Ollama {
         model: Option<String>,
         max_tokens: Option<u32>,
         temperature: Option<f32>,
+        client: Option<Client>,
         timeout_seconds: Option<u64>,
         system: Option<String>,
         top_p: Option<f32>,
@@ -317,23 +318,25 @@ impl Ollama {
         json_schema: Option<StructuredOutputFormat>,
         tools: Option<Vec<Tool>>,
     ) -> Self {
-        let mut builder = Client::builder();
-        if let Some(sec) = timeout_seconds {
-            builder = builder.timeout(std::time::Duration::from_secs(sec));
-        }
         Self {
             base_url: base_url.into(),
             api_key,
             model: model.unwrap_or("llama3.1".to_string()),
             temperature,
             max_tokens,
+            client: client.unwrap_or_else(|| {
+                let mut builder = Client::builder();
+                if let Some(sec) = timeout_seconds {
+                    builder = builder.timeout(std::time::Duration::from_secs(sec));
+                }
+                builder.build().expect("Failed to build reqwest Client")
+            }),
             timeout_seconds,
             system,
             top_p,
             top_k,
             json_schema,
             tools,
-            client: builder.build().expect("Failed to build reqwest Client"),
         }
     }
 

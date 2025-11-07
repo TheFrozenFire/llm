@@ -77,6 +77,8 @@ pub struct Google {
     pub temperature: Option<f32>,
     /// Optional system prompt to set context
     pub system: Option<String>,
+    /// HTTP client for making API requests
+    pub client: Client,
     /// Request timeout in seconds
     pub timeout_seconds: Option<u64>,
     /// Top-p sampling parameter
@@ -87,8 +89,6 @@ pub struct Google {
     pub json_schema: Option<StructuredOutputFormat>,
     /// Available tools for function calling
     pub tools: Option<Vec<Tool>>,
-    /// HTTP client for making API requests
-    client: Client,
 }
 
 /// Request body for chat completions
@@ -489,6 +489,7 @@ impl Google {
         model: Option<String>,
         max_tokens: Option<u32>,
         temperature: Option<f32>,
+        client: Option<Client>,
         timeout_seconds: Option<u64>,
         system: Option<String>,
         top_p: Option<f32>,
@@ -496,22 +497,24 @@ impl Google {
         json_schema: Option<StructuredOutputFormat>,
         tools: Option<Vec<Tool>>,
     ) -> Self {
-        let mut builder = Client::builder();
-        if let Some(sec) = timeout_seconds {
-            builder = builder.timeout(std::time::Duration::from_secs(sec));
-        }
         Self {
             api_key: api_key.into(),
             model: model.unwrap_or_else(|| "gemini-1.5-flash".to_string()),
             max_tokens,
             temperature,
             system,
+            client: client.unwrap_or_else(|| {
+                let mut builder = Client::builder();
+                if let Some(sec) = timeout_seconds {
+                    builder = builder.timeout(std::time::Duration::from_secs(sec));
+                }
+                builder.build().expect("Failed to build reqwest Client")
+            }),
             timeout_seconds,
             top_p,
             top_k,
             json_schema,
             tools,
-            client: builder.build().expect("Failed to build reqwest Client"),
         }
     }
 }

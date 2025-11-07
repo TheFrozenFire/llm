@@ -23,10 +23,10 @@ pub struct ElevenLabs {
     model_id: String,
     /// Base URL for API requests
     base_url: String,
-    /// Optional timeout duration in seconds
-    timeout_seconds: Option<u64>,
     /// HTTP client for making requests
     client: Client,
+    /// Optional timeout duration in seconds
+    timeout_seconds: Option<u64>,
     /// Voice ID to use for speech synthesis
     voice: Option<String>,
 }
@@ -89,6 +89,7 @@ impl ElevenLabs {
         api_key: String,
         model_id: String,
         base_url: String,
+        client: Option<Client>,
         timeout_seconds: Option<u64>,
         voice: Option<String>,
     ) -> Self {
@@ -96,8 +97,14 @@ impl ElevenLabs {
             api_key,
             model_id,
             base_url,
+            client: client.unwrap_or_else(|| {
+                let mut builder = Client::builder();
+                if let Some(sec) = timeout_seconds {
+                    builder = builder.timeout(std::time::Duration::from_secs(sec));
+                }
+                builder.build().expect("Failed to build reqwest Client")
+            }),
             timeout_seconds,
-            client: Client::new(),
             voice,
         }
     }

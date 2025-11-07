@@ -15,6 +15,7 @@ use crate::{
     LLMProvider,
 };
 use async_trait::async_trait;
+use reqwest::Client;
 
 /// Groq configuration for the generic provider
 pub struct GroqConfig;
@@ -53,6 +54,7 @@ impl Groq {
         model: Option<String>,
         max_tokens: Option<u32>,
         temperature: Option<f32>,
+        client: Option<Client>,
         timeout_seconds: Option<u64>,
         system: Option<String>,
         top_p: Option<f32>,
@@ -72,6 +74,7 @@ impl Groq {
             model,
             max_tokens,
             temperature,
+            client,
             timeout_seconds,
             system,
             top_p,

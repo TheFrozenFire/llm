@@ -34,6 +34,7 @@ pub struct Anthropic {
     pub model: String,
     pub max_tokens: u32,
     pub temperature: f32,
+    pub client: Client,
     pub timeout_seconds: u64,
     pub system: String,
     pub top_p: Option<f32>,
@@ -42,7 +43,6 @@ pub struct Anthropic {
     pub tool_choice: Option<ToolChoice>,
     pub reasoning: bool,
     pub thinking_budget_tokens: Option<u32>,
-    client: Client,
 }
 
 /// Anthropic-specific tool format that matches their API structure
@@ -299,6 +299,7 @@ impl Anthropic {
         model: Option<String>,
         max_tokens: Option<u32>,
         temperature: Option<f32>,
+        client: Option<Client>,
         timeout_seconds: Option<u64>,
         system: Option<String>,
         top_p: Option<f32>,
@@ -308,16 +309,19 @@ impl Anthropic {
         reasoning: Option<bool>,
         thinking_budget_tokens: Option<u32>,
     ) -> Self {
-        let mut builder = Client::builder();
-        if let Some(sec) = timeout_seconds {
-            builder = builder.timeout(std::time::Duration::from_secs(sec));
-        }
         Self {
             api_key: api_key.into(),
             model: model.unwrap_or_else(|| "claude-3-sonnet-20240229".to_string()),
             max_tokens: max_tokens.unwrap_or(300),
             temperature: temperature.unwrap_or(0.7),
             system: system.unwrap_or_else(|| "You are a helpful assistant.".to_string()),
+            client: client.unwrap_or_else(|| {
+                let mut builder = Client::builder();
+                if let Some(sec) = timeout_seconds {
+                    builder = builder.timeout(std::time::Duration::from_secs(sec));
+                }
+                builder.build().expect("Failed to build reqwest Client")
+            }),
             timeout_seconds: timeout_seconds.unwrap_or(30),
             top_p,
             top_k,
@@ -325,7 +329,6 @@ impl Anthropic {
             tool_choice,
             reasoning: reasoning.unwrap_or(false),
             thinking_budget_tokens,
-            client: builder.build().expect("Failed to build reqwest Client"),
         }
     }
 }

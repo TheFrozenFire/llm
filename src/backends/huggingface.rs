@@ -15,6 +15,7 @@ use crate::{
     LLMProvider,
 };
 use async_trait::async_trait;
+use reqwest::Client;
 
 /// HuggingFace configuration for the generic provider
 pub struct HuggingFaceConfig;
@@ -39,6 +40,7 @@ impl HuggingFace {
         model: Option<String>,
         max_tokens: Option<u32>,
         temperature: Option<f32>,
+        client: Option<Client>,
         timeout_seconds: Option<u64>,
         system: Option<String>,
         top_p: Option<f32>,
@@ -58,6 +60,7 @@ impl HuggingFace {
             model,
             max_tokens,
             temperature,
+            client,
             timeout_seconds,
             system,
             top_p,

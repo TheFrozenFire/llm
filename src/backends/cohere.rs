@@ -15,6 +15,7 @@ use crate::{
 };
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
+use reqwest::Client;
 
 /// Cohere configuration for the generic provider
 pub struct CohereConfig;
@@ -38,6 +39,7 @@ impl Cohere {
     #[allow(clippy::too_many_arguments)]
     pub fn with_config(
         api_key: impl Into<String>,
+        client: Option<Client>,
         base_url: Option<String>,
         model: Option<String>,
         max_tokens: Option<u32>,
@@ -61,6 +63,7 @@ impl Cohere {
             model,
             max_tokens,
             temperature,
+            client,
             timeout_seconds,
             system,
             top_p,

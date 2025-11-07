@@ -24,6 +24,7 @@ use crate::{
 use async_trait::async_trait;
 use futures::{Stream, StreamExt};
 use serde::{Deserialize, Serialize};
+use reqwest::Client;
 use std::time::Duration;
 
 /// OpenAI configuration for the generic provider
@@ -195,6 +196,7 @@ impl OpenAI {
         model: Option<String>,
         max_tokens: Option<u32>,
         temperature: Option<f32>,
+        client: Option<Client>,
         timeout_seconds: Option<u64>,
         system: Option<String>,
         top_p: Option<f32>,
@@ -225,6 +227,7 @@ impl OpenAI {
                 model,
                 max_tokens,
                 temperature,
+                client,
                 timeout_seconds,
                 system,
                 top_p,
